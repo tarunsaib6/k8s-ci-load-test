@@ -44,7 +44,7 @@ jobs:
 
           echo "curl bar"
           curl localhost/bar
-
+      # setup k6 binary for linux
       - name: Install k6 for load testing
         run: |
           sudo gpg -k
@@ -52,13 +52,15 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update > /dev/null
           sudo apt-get install k6 -y > /dev/null
-
+      # Run load test
       - name: Run k6 Performance Test
         id: k6-test
         run: |
           k6 run loadtest.js > k6-output.txt || true
           cat k6-output.txt
-
+          $(cat k6-output.txt | tr -d '\n' | tr -d '\r')
+          echo "output=$OUTPUT" >> $GITHUB_ENV
+      #post results to PR as a comment
       - name: Post k6 Output as PR Comment
         uses: actions/github-script@v6
         with:
