@@ -51,7 +51,7 @@ spec:
         args:
           - "-text=bar"
         ports:
-        - containerPort: 5679
+        - containerPort: 5678
 ---
 apiVersion: v1
 kind: Service
@@ -78,8 +78,8 @@ spec:
     type: bar
   ports:
   - protocol: TCP
-    port: 5679
-    targetPort: 5679
+    port: 5678
+    targetPort: 5678
   type: ClusterIP
 
 ---
@@ -107,4 +107,4 @@ spec:
           service:
             name: http-echo-bar-service
             port:
-              number: 5679
+              number: 5678
