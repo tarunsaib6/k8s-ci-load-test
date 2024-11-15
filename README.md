@@ -100,5 +100,3 @@ Uses the `actions/checkout@v3` action to clone the repository.
 - Customize the k6 script (`loadtest.js`) to match your testing requirements.
 - Ensure sufficient resource allocation for KinD clusters to handle the load test effectively.
 - The workflow posts test results directly to the corresponding pull request for better visibility. 
-
-Happy testing! 🚀
