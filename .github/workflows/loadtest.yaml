@@ -57,30 +57,34 @@ jobs:
         id: k6-test
         run: |
           echo "Commit SHA: $GITHUB_SHA"
-          k6 -e GITHUB_PR=${{ github.event.number }} -e GITHUB_SHA=${{ github.sha }} -e GITHUB_TOKEN=$GITHUB_TOKEN run loadtest.js 
+          k6 -e GITHUB_PR=${{ github.event.number }} -e GITHUB_SHA=$GITHUB_SHA" -e GITHUB_TOKEN=$GITHUB_TOKEN run loadtest.js > results.txt
+          cat results.txt
+          OUTPUT=$(cat k6-output.txt)
+          echo "output=$OUTPUT" >> $GITHUB_OUTPUT
 
-      # #post results to PR as a comment
-      # - name: Post k6 Output as PR Comment
-      #   uses: actions/github-script@v6
-      #   with:echo "Commit SHA: $GITHUB_SHA"
-      #     script: |
-      #       const output = process.env.OUTPUT;
-      #       const prNumber = context.payload.pull_request.number;
 
-      #       if (!prNumber) {
-      #         console.log('Not a pull request. Skipping comment.');
-      #         return;
-      #       }
+      #post results to PR as a comment
+      - name: Post k6 Output as PR Comment
+        uses: actions/github-script@v6
+        with:echo "Commit SHA: $GITHUB_SHA"
+          script: |
+            const output = process.env.OUTPUT;
+            const prNumber = context.payload.pull_request.number;
 
-      #       const body = `### k6 Performance Test Results\n\`\`\`\n${output}\n\`\`\``;
+            if (!prNumber) {
+              console.log('Not a pull request. Skipping comment.');
+              return;
+            }
 
-      #       await github.rest.issues.createComment({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         issue_number: prNumber,
-      #         body: body,
-      #       });
-      #   env:
-      #     OUTPUT: ${{ steps.k6-test.outputs.stdout }}
+            const body = `### k6 Performance Test Results\n\`\`\`\n${output}\n\`\`\``;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: body,
+            });
+        env:
+          OUTPUT: ${{ steps.k6-test.outputs.output }}
 
 
