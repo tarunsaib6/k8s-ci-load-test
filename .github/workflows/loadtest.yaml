@@ -1,0 +1,25 @@
+name: CI Load Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      # kind setup k8s cluster in runners local  
+      - name: Set up KinD cluster
+        uses: helm/kind-action@v1.4.0
+        with:
+          version: "v0.20.0"
+          config: |
+            kind: Cluster
+            apiVersion: kind.x-k8s.io/v1alpha4
+            nodes:
+              - role: control-plane
+              - role: worker
+              - role: worker
