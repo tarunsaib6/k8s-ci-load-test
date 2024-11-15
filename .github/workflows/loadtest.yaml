@@ -66,7 +66,6 @@ jobs:
       #post results to PR as a comment
       - name: Post k6 Output as PR Comment
         uses: actions/github-script@v6
-        with:echo "Commit SHA: $GITHUB_SHA"
           script: |
             const output = process.env.OUTPUT;
             const prNumber = context.payload.pull_request.number;
