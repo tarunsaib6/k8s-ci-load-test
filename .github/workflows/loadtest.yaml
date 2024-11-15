@@ -21,7 +21,7 @@ jobs:
       # deploy ingress controller to kind k8s cluster        
       - name: Install Ingress Controller
         run: |
-          kubectl describe nodes
+          kubectl get nodes
           kubectl apply -f nginxIngress.yaml        
           kubectl wait --namespace ingress-nginx \
             --for=condition=ready pod \
@@ -47,12 +47,12 @@ jobs:
           sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
           echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update > /dev/null
-          sudo apt-get install k6 -y
+          sudo apt-get install k6 -y > /dev/null
 
       - name: Run k6 Performance Test
         id: k6-test
         run: |
-          k6 run loadtest.js > test-results/k6-output.txt || true
-          cat test-results/k6-output.txt
+          k6 run loadtest.js > k6-output.txt || true
+          cat k6-output.txt
 
 
