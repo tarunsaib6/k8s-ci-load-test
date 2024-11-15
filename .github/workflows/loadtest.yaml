@@ -22,7 +22,7 @@ jobs:
       # deploy ingress controller to kind k8s cluster        
       - name: Install Ingress Controller
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          kubectl apply -f nginxIngress.yaml
           
           label_selector="app.kubernetes.io/name=ingress-nginx,app.kubernetes.io/component=controller"
           duration=$((10 * 60))  
@@ -31,7 +31,7 @@ jobs:
 
           while [ $(($(date +%s) - start_time)) -lt "$duration" ]; do
             kubectl get pods -n ingress-nginx 
-            
+
             kubectl describe pod -l "$label_selector" -n ingress-nginx
             
             sleep $interval
