@@ -12,7 +12,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # kind setup k8s cluster in runners local  
       - name: Set up KinD cluster
         uses: helm/kind-action@v1.4.0
         with:
@@ -31,6 +30,7 @@ jobs:
           kubectl get svc -n ingress-nginx  
           echo "##########################################################"
           kubectl get svc ingress-nginx-controller -n ingress-nginx -o yaml
+
       # deploy http echos, service, configure ingress
       - name: Deploy http-echo applications
         run: |
@@ -39,6 +39,10 @@ jobs:
           kubectl get pods 
           kubectl get service
           kubectl get ingress
+          echo "##################################"
+          
+          curl localhost/foo
+          curl localhost/bar
 
 
       # # configure ingress
