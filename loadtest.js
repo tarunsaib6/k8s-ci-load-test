@@ -1,5 +1,11 @@
 import http from 'k6/http';
 import { sleep } from 'k6';
+import { check } from "k6";
+import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
+import { githubComment } from "https://raw.githubusercontent.com/dotansimha/k6-github-pr-comment/master/lib.js";
+
+
+
 
 export const options = {
   stages: [
@@ -24,3 +30,44 @@ export default function () {
   // Add a pause between iterations
   sleep(1);
 }
+
+export function handleSummary(data) {
+  githubComment(data, {
+    token: __ENV.GITHUB_TOKEN, 
+    commit: __ENV.GITHUB_SHA,
+    pr: __ENV.GITHUB_PR,
+    org: "tarunsaib6",
+    repo: "k8s-ci-load-test",
+    renderTitle({ passes }) {
+      return passes ? "✅ Benchmark Results" : "❌ Benchmark Failed"; // Here you can choose how to build the title
+    },
+    renderMessage({ passes, checks, thresholds }) { // Customize the output and the comment text
+      const result = [];
+
+      // In case of failures in thresholds, you can customize the message
+      if (thresholds.failures) {
+        result.push(
+          `**Performance regression detected**: it seems like your Pull Request adds some extra latency to the GraphQL requests, or to envelop runtime.`
+        );
+      }
+
+      // In case of failing execution of K6, you can customize the output
+      if (checks.failures) {
+        result.push("**Failed assertions detected**: some GraphQL operations included in the loadtest are failing.");
+      }
+
+      if (!passes) {
+        result.push(`> If the performance regression is expected, please increase the failing threshold.`);
+      }
+
+      // Make sure to return a string
+      return result.join("\n");
+    },
+  });
+
+  // This will preserve the original output of K6 to the console, while still publishing to GH.
+  return {
+    stdout: textSummary(data, { indent: " ", enableColors: true }),
+  };
+};
+
