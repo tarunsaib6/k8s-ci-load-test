@@ -22,6 +22,7 @@ jobs:
       # deploy ingress controller to kind k8s cluster        
       - name: Install Ingress Controller
         run: |
+          kubectl get nodes
           kubectl apply -f nginxIngress.yaml
           
           label_selector="app.kubernetes.io/name=ingress-nginx,app.kubernetes.io/component=controller"
