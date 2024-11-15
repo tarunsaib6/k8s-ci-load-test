@@ -57,7 +57,7 @@ jobs:
         id: k6-test
         run: |
           echo "Commit SHA: $GITHUB_SHA"
-          k6 -e GITHUB_PR=${{ github.event.number }} -e GITHUB_SHA=$GITHUB_SHA -e GITHUB_TOKEN=$GITHUB_TOKEN run loadtest.js --out csv=result.csv
+          k6 -e GITHUB_PR=${{ github.event.number }} -e GITHUB_SHA=$GITHUB_SHA -e GITHUB_TOKEN=$GITHUB_TOKEN run loadtest.js --out csv=results.csv
           cat results.csv
           OUTPUT=$(cat results.csv)
           echo "output=$OUTPUT" >> $GITHUB_OUTPUT
