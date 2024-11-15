@@ -41,7 +41,10 @@ jobs:
           kubectl get ingress
           echo "##################################"
 
+          echo "curl foo"
           curl localhost/foo
+
+          echo "curl bar"
           curl localhost/bar
 
 
