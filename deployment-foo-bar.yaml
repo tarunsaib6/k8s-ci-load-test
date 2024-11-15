@@ -19,7 +19,8 @@ spec:
     spec:
       containers:
       - name: http-echo-foo
-        image: hashicorp/http-echo
+        image: hashicorp/http-echo:1.0
+        imagePullPolicy: IfNotPresent  
         args:
           - "-text=foo"
         ports:
@@ -47,7 +48,8 @@ spec:
     spec:
       containers:
       - name: http-echo-bar
-        image: hashicorp/http-echo
+        image: hashicorp/http-echo:1.0
+        imagePullPolicy: IfNotPresent  
         args:
           - "-text=bar"
         ports:
