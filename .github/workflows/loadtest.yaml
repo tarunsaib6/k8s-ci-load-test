@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       # kind setup k8s cluster in runners local  
       - name: Set up KinD cluster
         uses: helm/kind-action@v1.4.0
@@ -23,3 +24,13 @@ jobs:
               - role: control-plane
               - role: worker
               - role: worker
+              
+      # deploy ingress controller to kind k8s cluster        
+      - name: Install Ingress Controller
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=90s
+
