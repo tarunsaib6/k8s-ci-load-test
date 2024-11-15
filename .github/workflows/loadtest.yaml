@@ -60,7 +60,8 @@ jobs:
           cat k6-output.txt
 
           OUTPUT=$(cat k6-output.txt)
-          echo "::set-output name=output::$OUTPUT"      
+          echo "output=$OUTPUT" >> $GITHUB_ENV
+                
 
       - name: Post k6 Output as PR Comment
         uses: actions/github-script@v6
