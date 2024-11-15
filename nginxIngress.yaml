@@ -505,7 +505,7 @@ spec:
           readOnly: true
       dnsPolicy: ClusterFirst
       nodeSelector:
-        ingress-ready: "true"
+        # ingress-ready: "true"
         kubernetes.io/os: linux
       serviceAccountName: ingress-nginx
       terminationGracePeriodSeconds: 0
