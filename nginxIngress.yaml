@@ -506,7 +506,7 @@ spec:
       dnsPolicy: ClusterFirst
       nodeSelector:
         # ingress-ready: "true"
-        kubernetes.io/hostname: kind-control-plane
+        kubernetes.io/hostname: chart-testing-control-plane
       serviceAccountName: ingress-nginx
       terminationGracePeriodSeconds: 0
       tolerations:
