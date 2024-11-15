@@ -1,5 +1,9 @@
 name: CI Load Test
 
+permissions:
+  pull-requests: write
+  contents: read
+
 on:
   pull_request:
     branches:
@@ -11,15 +15,72 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      # kind setup k8s cluster in runners local  
+
       - name: Set up KinD cluster
         uses: helm/kind-action@v1.4.0
         with:
           version: "v0.20.0"
-          config: |
-            kind: Cluster
-            apiVersion: kind.x-k8s.io/v1alpha4
-            nodes:
-              - role: control-plane
-              - role: worker
-              - role: worker
+          config: kindCluster.yaml
+
+      # deploy ingress controller to kind k8s cluster        
+      - name: Install Ingress Controller
+        run: |
+          kubectl get nodes
+          kubectl apply -f nginxIngress.yaml        
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=90s
+
+      # deploy http echos, service, configure ingress
+      - name: Deploy http-echo applications
+        run: |
+          kubectl apply -f deployment-foo-bar.yaml
+          sleep 5
+
+          echo "##################################"
+          echo "curl foo"
+          curl localhost/foo
+
+          echo "curl bar"
+          curl localhost/bar
+      # setup k6 binary for linux
+      - name: Install k6 for load testing
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update > /dev/null
+          sudo apt-get install k6 -y > /dev/null
+      # Run load test
+      - name: Run k6 Performance Test
+        id: k6-test
+        run: |
+          echo "Commit SHA: $GITHUB_SHA"
+          k6 -e GITHUB_PR=${{ github.event.number }} -e GITHUB_SHA=$GITHUB_SHA -e GITHUB_TOKEN=$GITHUB_TOKEN run loadtest.js > results.txt 
+          cat results.txt
+          echo "RESULT_OUTPUT<<EOF" >> $GITHUB_ENV
+          cat results.txt  >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+
+      - name: Post k6 Output as PR Comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const output = process.env.OUTPUT;
+            const prNumber = context.payload.pull_request.number;
+            if (!prNumber) {
+              console.log('Not a pull request. Skipping comment.');
+              return;
+            }
+            const body = `### k6 Performance Test Results\n\`\`\`\n${output}\n\`\`\``;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: body,
+            });
+        env:
+          OUTPUT: ${{ env.RESULT_OUTPUT }}
+
