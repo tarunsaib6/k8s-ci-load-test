@@ -91,7 +91,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: http-echo.local
+  - host: localhost
     http:
       paths:
       - path: /foo
