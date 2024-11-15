@@ -21,7 +21,7 @@ jobs:
       # deploy ingress controller to kind k8s cluster        
       - name: Install Ingress Controller
         run: |
-          
+          kubectl describe nodes
           kubectl apply -f nginxIngress.yaml        
           kubectl wait --namespace ingress-nginx \
             --for=condition=ready pod \
@@ -40,7 +40,7 @@ jobs:
           kubectl get service
           kubectl get ingress
           echo "##################################"
-          
+
           curl localhost/foo
           curl localhost/bar
 
